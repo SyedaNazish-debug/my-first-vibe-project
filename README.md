@@ -46,7 +46,7 @@ my-first-vibe-project/
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR-GITHUB-REPOSITORY-URL>
+git clone <https://github.com/SyedaNazish-debug/my-first-vibe-project/tree/main>
 cd my-first-vibe-project
 ```
 
