@@ -57,7 +57,7 @@ with tab_view:
     st.subheader("Saved Opportunities")
 
     # Search and Filter Controls
-    col_search, col_cat, col_status = st.columns([2, 1, 1])
+    col_search, col_cat, col_status, col_priority = st.columns([2, 1, 1, 1])
 
     with col_search:
         search_query = st.text_input(
@@ -77,11 +77,18 @@ with tab_view:
             ["All"] + STATUSES
         )
 
+    with col_priority:
+        priority_filter = st.selectbox(
+            "Priority",
+            ["All"] + PRIORITIES
+        )
+
     # Fetch filtered opportunities from database
     opportunities = get_all_opportunities(
         search_query=search_query,
         category_filter=category_filter,
-        status_filter=status_filter
+        status_filter=status_filter,
+        priority_filter=priority_filter
     )
 
     if not opportunities:

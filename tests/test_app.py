@@ -255,8 +255,87 @@ def run_tests():
     assert any(r["id"] == id_a for r in res_stat_all)
     print("  [PASS] Status filter 'All' returned all active records")
 
-    # 2.4 Combined Search & Filtering
-    print("\n--- DB Filter Test 2.4: Combined Search and Filters ---")
+    # 2.4 Priority Filtering
+    print("\n--- DB Filter Test 2.4: Priority Filtering ---")
+    # Opp A was updated to priority="Low"
+    res_pri_low = database.get_all_opportunities(priority_filter="Low")
+    assert any(r["id"] == id_a for r in res_pri_low)
+    print("  [PASS] Matching priority ('Low') returned test record Opp A")
+
+    res_pri_high = database.get_all_opportunities(priority_filter="High")
+    assert not any(r["id"] == id_a for r in res_pri_high)
+    print("  [PASS] Non-matching priority ('High') excluded test record Opp A")
+
+    res_pri_med = database.get_all_opportunities(priority_filter="Medium")
+    assert not any(r["id"] == id_a for r in res_pri_med)
+    print("  [PASS] Non-matching priority ('Medium') excluded test record Opp A")
+
+    # Add temporary records to verify Medium and High priority filtering explicitly
+    temp_med_id = database.add_opportunity(
+        title="TEST Priority Med Record",
+        organization="Priority Org Med",
+        category="Internship",
+        status="Saved",
+        priority="Medium"
+    )
+    temp_high_id = database.add_opportunity(
+        title="TEST Priority High Record",
+        organization="Priority Org High",
+        category="Hackathon",
+        status="Accepted",
+        priority="High"
+    )
+
+    try:
+        # a. filtering by High
+        res_high_match = database.get_all_opportunities(priority_filter="High")
+        assert any(r["id"] == temp_high_id for r in res_high_match)
+        assert not any(r["id"] == temp_med_id for r in res_high_match)
+        assert not any(r["id"] == id_a for r in res_high_match)
+        print("  [PASS] Filtering by High returns High record and excludes Medium/Low")
+
+        # b. filtering by Medium
+        res_med_match = database.get_all_opportunities(priority_filter="Medium")
+        assert any(r["id"] == temp_med_id for r in res_med_match)
+        assert not any(r["id"] == temp_high_id for r in res_med_match)
+        assert not any(r["id"] == id_a for r in res_med_match)
+        print("  [PASS] Filtering by Medium returns Medium record and excludes High/Low")
+
+        # c. filtering by Low
+        res_low_match = database.get_all_opportunities(priority_filter="Low")
+        assert any(r["id"] == id_a for r in res_low_match)
+        assert not any(r["id"] == temp_med_id for r in res_low_match)
+        assert not any(r["id"] == temp_high_id for r in res_low_match)
+        print("  [PASS] Filtering by Low returns Low record and excludes High/Medium")
+
+        # d. no priority filter / 'All' preserves existing behavior
+        res_pri_none = database.get_all_opportunities(priority_filter=None)
+        res_pri_all = database.get_all_opportunities(priority_filter="All")
+        assert any(r["id"] == id_a for r in res_pri_none)
+        assert any(r["id"] == temp_med_id for r in res_pri_none)
+        assert any(r["id"] == temp_high_id for r in res_pri_none)
+        assert len(res_pri_none) == len(res_pri_all)
+        print("  [PASS] No priority filter / 'All' preserves all records")
+
+        # e. priority filtering works together with category, status, and search
+        res_comb_pri_cat = database.get_all_opportunities(priority_filter="High", category_filter="Hackathon")
+        assert any(r["id"] == temp_high_id for r in res_comb_pri_cat)
+        assert not any(r["id"] == temp_med_id for r in res_comb_pri_cat)
+
+        res_comb_pri_stat = database.get_all_opportunities(priority_filter="High", status_filter="Accepted")
+        assert any(r["id"] == temp_high_id for r in res_comb_pri_stat)
+        assert not any(r["id"] == temp_med_id for r in res_comb_pri_stat)
+
+        res_comb_pri_search = database.get_all_opportunities(priority_filter="Medium", search_query="Priority Org Med")
+        assert any(r["id"] == temp_med_id for r in res_comb_pri_search)
+        assert not any(r["id"] == temp_high_id for r in res_comb_pri_search)
+        print("  [PASS] Priority filtering works together with category, status, and search filters")
+    finally:
+        database.delete_opportunity(temp_med_id)
+        database.delete_opportunity(temp_high_id)
+
+    # 2.5 Combined Search & Filtering
+    print("\n--- DB Filter Test 2.5: Combined Search and Filters ---")
     res_comb_1 = database.get_all_opportunities(search_query="Updated", category_filter="Course")
     assert any(r["id"] == id_a for r in res_comb_1)
     res_comb_2 = database.get_all_opportunities(search_query="Updated", category_filter="Scholarship")

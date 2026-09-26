@@ -66,12 +66,13 @@ def add_opportunity(title, organization, category, status, priority, deadline=No
         conn.close()
 
 
-def get_all_opportunities(search_query=None, category_filter=None, status_filter=None):
+def get_all_opportunities(search_query=None, category_filter=None, status_filter=None, priority_filter=None):
     """
     Retrieves opportunities from the database with optional search and filtering:
     - search_query: matches keyword against title or organization
     - category_filter: filters by category (ignores if None or 'All')
     - status_filter: filters by status (ignores if None or 'All')
+    - priority_filter: filters by priority (ignores if None or 'All')
     Returns a list of sqlite3.Row objects ordered by newest first.
     """
     sql = "SELECT * FROM opportunities WHERE 1=1"
@@ -89,6 +90,10 @@ def get_all_opportunities(search_query=None, category_filter=None, status_filter
     if status_filter and status_filter != "All":
         sql += " AND status = ?"
         params.append(status_filter)
+
+    if priority_filter and priority_filter != "All":
+        sql += " AND priority = ?"
+        params.append(priority_filter)
 
     sql += " ORDER BY id DESC"
 
