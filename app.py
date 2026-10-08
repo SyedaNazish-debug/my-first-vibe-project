@@ -32,6 +32,32 @@ def parse_date(date_str):
         return None
 
 
+def get_deadline_status(deadline_str, today=None):
+    """
+    Calculates the urgency/status of a deadline string relative to today:
+    - No deadline / empty / invalid value -> 'No Deadline'
+    - deadline < today -> 'Expired'
+    - deadline == today -> 'Due Today'
+    - deadline 1 to 7 days from today -> 'Due Soon'
+    - deadline > 7 days from today -> 'Upcoming'
+    """
+    deadline_date = parse_date(deadline_str)
+    if not deadline_date:
+        return "No Deadline"
+
+    ref_date = today if today is not None else datetime.date.today()
+    delta_days = (deadline_date - ref_date).days
+
+    if delta_days < 0:
+        return "Expired"
+    elif delta_days == 0:
+        return "Due Today"
+    elif 1 <= delta_days <= 7:
+        return "Due Soon"
+    else:
+        return "Upcoming"
+
+
 # Page Configuration
 st.set_page_config(
     page_title="Student Opportunity Board",
@@ -105,6 +131,7 @@ with tab_view:
                 "Status": row["status"],
                 "Priority": row["priority"],
                 "Deadline": row["deadline"] if row["deadline"] else "-",
+                "Deadline Status": get_deadline_status(row["deadline"]),
                 "Link": row["link"] if row["link"] else None,
                 "Notes": row["notes"] if row["notes"] else "-",
             }

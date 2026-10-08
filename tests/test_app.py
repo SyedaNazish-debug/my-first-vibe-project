@@ -349,9 +349,57 @@ def run_tests():
     print("  [PASS] Search + Status conjunction verified")
 
     # -----------------------------------------------------------------
-    # SECTION 3: CLEANUP & DATA INTEGRITY TESTS
+    # SECTION 3: DEADLINE STATUS LOGIC TESTS
     # -----------------------------------------------------------------
-    print("\n>>> SECTION 3: CLEANUP & DATA INTEGRITY TESTS <<<")
+    print("\n>>> SECTION 3: DEADLINE STATUS LOGIC TESTS <<<")
+    from app import get_deadline_status
+
+    ref_date = datetime.date(2026, 10, 8)
+
+    # 3.1 No Deadline
+    print("\n--- Deadline Test 3.1: No Deadline / Empty / Invalid ---")
+    assert get_deadline_status(None, today=ref_date) == "No Deadline"
+    assert get_deadline_status("", today=ref_date) == "No Deadline"
+    assert get_deadline_status("invalid-date", today=ref_date) == "No Deadline"
+    print("  [PASS] None, empty string, and invalid strings return 'No Deadline'")
+
+    # 3.2 Expired
+    print("\n--- Deadline Test 3.2: Expired ---")
+    assert get_deadline_status("2026-10-07", today=ref_date) == "Expired"
+    assert get_deadline_status("2025-01-01", today=ref_date) == "Expired"
+    print("  [PASS] Past dates return 'Expired'")
+
+    # 3.3 Due Today
+    print("\n--- Deadline Test 3.3: Due Today ---")
+    assert get_deadline_status("2026-10-08", today=ref_date) == "Due Today"
+    print("  [PASS] Same-day date returns 'Due Today'")
+
+    # 3.4 Due Soon (1 to 7 days from today) & Boundaries
+    print("\n--- Deadline Test 3.4: Due Soon (1-7 days boundary) ---")
+    assert get_deadline_status("2026-10-09", today=ref_date) == "Due Soon"  # 1 day
+    assert get_deadline_status("2026-10-12", today=ref_date) == "Due Soon"  # 4 days
+    assert get_deadline_status("2026-10-15", today=ref_date) == "Due Soon"  # Exactly 7 days
+    print("  [PASS] 1 to 7 days away returns 'Due Soon', including 7-day boundary")
+
+    # 3.5 Upcoming & 8-day boundary
+    print("\n--- Deadline Test 3.5: Upcoming (8+ days boundary) ---")
+    assert get_deadline_status("2026-10-16", today=ref_date) == "Upcoming"  # Exactly 8 days
+    assert get_deadline_status("2026-11-01", today=ref_date) == "Upcoming"  # 24 days
+    print("  [PASS] 8+ days away returns 'Upcoming', including 8-day boundary")
+
+    # 3.6 Default today parameter
+    print("\n--- Deadline Test 3.6: Default today Parameter ---")
+    real_today = datetime.date.today()
+    assert get_deadline_status(real_today.isoformat()) == "Due Today"
+    assert get_deadline_status((real_today - datetime.timedelta(days=1)).isoformat()) == "Expired"
+    assert get_deadline_status((real_today + datetime.timedelta(days=3)).isoformat()) == "Due Soon"
+    assert get_deadline_status((real_today + datetime.timedelta(days=10)).isoformat()) == "Upcoming"
+    print("  [PASS] Default today parameter behaves consistently with current date")
+
+    # -----------------------------------------------------------------
+    # SECTION 4: CLEANUP & DATA INTEGRITY TESTS
+    # -----------------------------------------------------------------
+    print("\n>>> SECTION 4: CLEANUP & DATA INTEGRITY TESTS <<<")
 
     # Remove remaining test record Opp A
     deleted_a = database.delete_opportunity(id_a)
