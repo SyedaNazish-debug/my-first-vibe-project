@@ -177,8 +177,52 @@ def run_tests():
     assert len(all_curr) == len(initial_ids) + 2, "Duplicate records were created during edit!"
     print("  [PASS] Edit verified: Values updated in place, ID preserved, no duplicates created")
 
-    # 1.5 Delete Opportunity & Confirmation Protection UI Test
-    print("\n--- UI Test 1.5: Delete Opportunity & Confirmation Protection ---")
+    # 1.5 Edit Form Validation Test (Empty Required Fields)
+    print("\n--- UI Test 1.5: Edit Form Validation (Empty Title) ---")
+    at.run()
+    manage_sb = [sb for sb in at.selectbox if sb.key == "manage_select"][0]
+    label_a = [opt for opt in manage_sb.options if f"#{id_a}" in opt][0]
+    manage_sb.select(label_a).run()
+
+    # Clear Title field on the edit form (find text input in edit section having current value)
+    edit_title_input = [ti for ti in at.text_input if ti.label == "Title *" and ti.value == "TEST Opportunity A Updated"][0]
+    edit_title_input.input("").run()
+    save_changes_btn = [btn for btn in at.button if btn.label == "Save Changes"][0]
+    save_changes_btn.click().run()
+
+    # Verify error message is shown and database record was not corrupted
+    assert len(at.error) > 0, "Validation error was not displayed when Title was cleared on edit form"
+    assert "Title and Organization are required" in at.error[-1].value
+    opp_a_unmodified = database.get_opportunity_by_id(id_a)
+    assert opp_a_unmodified["title"] == "TEST Opportunity A Updated", "Database record was modified despite validation error!"
+    print(f"  [PASS] Edit validation enforced: '{at.error[-1].value}' and DB record unchanged")
+
+    # 1.6 Edit Deadline Clearing Test
+    print("\n--- UI Test 1.6: Edit Deadline Clearing ---")
+    # Restore title field first
+    at.run()
+    manage_sb = [sb for sb in at.selectbox if sb.key == "manage_select"][0]
+    label_a = [opt for opt in manage_sb.options if f"#{id_a}" in opt][0]
+    manage_sb.select(label_a).run()
+
+    # Clear deadline on existing record with deadline
+    database.update_opportunity(
+        opportunity_id=id_a,
+        title="TEST Opportunity A Updated",
+        organization="Acme University Updated",
+        category="Course",
+        status="Interviewing",
+        priority="Low",
+        deadline=None,
+        link="https://example.com/opp-a-updated",
+        notes="Updated notes for Opp A"
+    )
+    cleared_opp_a = database.get_opportunity_by_id(id_a)
+    assert cleared_opp_a["deadline"] is None, f"Expected deadline to be None, got {cleared_opp_a['deadline']}"
+    print("  [PASS] Deadline successfully cleared and stored as None in database")
+
+    # 1.7 Delete Opportunity & Confirmation Protection UI Test
+    print("\n--- UI Test 1.7: Delete Opportunity & Confirmation Protection ---")
     at.run()
     manage_sb = [sb for sb in at.selectbox if sb.key == "manage_select"][0]
     label_b = [opt for opt in manage_sb.options if f"#{id_b}" in opt][0]
@@ -354,6 +398,23 @@ def run_tests():
     res_comb_4 = database.get_all_opportunities(search_query="Updated", status_filter="Rejected")
     assert not any(r["id"] == id_a for r in res_comb_4)
     print("  [PASS] Search + Status conjunction verified")
+
+    # 2.6 Non-Existent Database IDs Test
+    print("\n--- DB Test 2.6: Non-Existent Database IDs ---")
+    update_res = database.update_opportunity(
+        opportunity_id=-1,
+        title="Non-existent",
+        organization="Ghost Org",
+        category="Internship",
+        status="Saved",
+        priority="Low"
+    )
+    assert update_res is False, f"Expected update_opportunity(-1) to return False, got {update_res}"
+    print("  [PASS] update_opportunity(-1, ...) safely returned False")
+
+    delete_res = database.delete_opportunity(-1)
+    assert delete_res is False, f"Expected delete_opportunity(-1) to return False, got {delete_res}"
+    print("  [PASS] delete_opportunity(-1) safely returned False")
 
     # -----------------------------------------------------------------
     # SECTION 3: DEADLINE STATUS LOGIC TESTS
