@@ -207,100 +207,98 @@ with tab_view:
             selected_opp = get_opportunity_by_id(selected_id)
 
             if selected_opp:
-                col_edit, col_del = st.columns([3, 2])
-
                 # EDIT FORM
-                with col_edit:
-                    st.markdown("#### ✏️ Edit Details")
-                    with st.form(f"edit_form_{selected_id}"):
-                        edit_title = st.text_input(
-                            "Title *",
-                            value=selected_opp["title"]
-                        )
-                        edit_organization = st.text_input(
-                            "Organization *",
-                            value=selected_opp["organization"]
-                        )
+                st.markdown("#### ✏️ Edit Details")
+                with st.form(f"edit_form_{selected_id}"):
+                    edit_title = st.text_input(
+                        "Title *",
+                        value=selected_opp["title"]
+                    )
+                    edit_organization = st.text_input(
+                        "Organization *",
+                        value=selected_opp["organization"]
+                    )
 
-                        cat_index = CATEGORIES.index(selected_opp["category"]) if selected_opp["category"] in CATEGORIES else 0
-                        edit_category = st.selectbox(
-                            "Category",
-                            CATEGORIES,
-                            index=cat_index
-                        )
+                    cat_index = CATEGORIES.index(selected_opp["category"]) if selected_opp["category"] in CATEGORIES else 0
+                    edit_category = st.selectbox(
+                        "Category",
+                        CATEGORIES,
+                        index=cat_index
+                    )
 
-                        status_index = STATUSES.index(selected_opp["status"]) if selected_opp["status"] in STATUSES else 0
-                        edit_status = st.selectbox(
-                            "Status",
-                            STATUSES,
-                            index=status_index
-                        )
+                    status_index = STATUSES.index(selected_opp["status"]) if selected_opp["status"] in STATUSES else 0
+                    edit_status = st.selectbox(
+                        "Status",
+                        STATUSES,
+                        index=status_index
+                    )
 
-                        priority_index = PRIORITIES.index(selected_opp["priority"]) if selected_opp["priority"] in PRIORITIES else 1
-                        edit_priority = st.selectbox(
-                            "Priority",
-                            PRIORITIES,
-                            index=priority_index
-                        )
+                    priority_index = PRIORITIES.index(selected_opp["priority"]) if selected_opp["priority"] in PRIORITIES else 1
+                    edit_priority = st.selectbox(
+                        "Priority",
+                        PRIORITIES,
+                        index=priority_index
+                    )
 
-                        edit_deadline = st.date_input(
-                            "Deadline",
-                            value=parse_date(selected_opp["deadline"])
-                        )
-                        edit_link = st.text_input(
-                            "Link",
-                            value=selected_opp["link"] or ""
-                        )
-                        edit_notes = st.text_area(
-                            "Notes",
-                            value=selected_opp["notes"] or ""
-                        )
+                    edit_deadline = st.date_input(
+                        "Deadline",
+                        value=parse_date(selected_opp["deadline"])
+                    )
+                    edit_link = st.text_input(
+                        "Link",
+                        value=selected_opp["link"] or ""
+                    )
+                    edit_notes = st.text_area(
+                        "Notes",
+                        value=selected_opp["notes"] or ""
+                    )
 
-                        save_changes = st.form_submit_button("Save Changes")
+                    save_changes = st.form_submit_button("Save Changes")
 
-                        if save_changes:
-                            if not edit_title.strip() or not edit_organization.strip():
-                                st.error("Title and Organization are required.")
-                            else:
-                                deadline_str = edit_deadline.isoformat() if edit_deadline else None
-                                clean_link = edit_link.strip() if edit_link.strip() else None
-                                clean_notes = edit_notes.strip() if edit_notes.strip() else None
+                    if save_changes:
+                        if not edit_title.strip() or not edit_organization.strip():
+                            st.error("Title and Organization are required.")
+                        else:
+                            deadline_str = edit_deadline.isoformat() if edit_deadline else None
+                            clean_link = edit_link.strip() if edit_link.strip() else None
+                            clean_notes = edit_notes.strip() if edit_notes.strip() else None
 
-                                update_opportunity(
-                                    opportunity_id=selected_id,
-                                    title=edit_title.strip(),
-                                    organization=edit_organization.strip(),
-                                    category=edit_category,
-                                    status=edit_status,
-                                    priority=edit_priority,
-                                    deadline=deadline_str,
-                                    link=clean_link,
-                                    notes=clean_notes
-                                )
-                                st.success(f"Opportunity #{selected_id} updated successfully!")
-                                st.rerun()
+                            update_opportunity(
+                                opportunity_id=selected_id,
+                                title=edit_title.strip(),
+                                organization=edit_organization.strip(),
+                                category=edit_category,
+                                status=edit_status,
+                                priority=edit_priority,
+                                deadline=deadline_str,
+                                link=clean_link,
+                                notes=clean_notes
+                            )
+                            st.success(f"Opportunity #{selected_id} updated successfully!")
+                            st.rerun()
+
+                st.divider()
 
                 # DELETE SECTION
-                with col_del:
-                    st.markdown("#### 🗑️ Delete Opportunity")
-                    st.warning(
-                        f"You are about to delete **#{selected_id}: {selected_opp['title']}** "
-                        f"at **{selected_opp['organization']}**."
-                    )
-                    confirm_delete = st.checkbox(
-                        "I confirm that I want to permanently delete this opportunity.",
-                        key=f"confirm_delete_{selected_id}"
-                    )
+                st.markdown("#### 🗑️ Delete Opportunity")
+                st.warning(
+                    f"You are about to delete **#{selected_id}: {selected_opp['title']}** "
+                    f"at **{selected_opp['organization']}**."
+                )
+                confirm_delete = st.checkbox(
+                    "I confirm that I want to permanently delete this opportunity.",
+                    key=f"confirm_delete_{selected_id}"
+                )
 
-                    if st.button(
-                        "Permanently Delete",
-                        type="primary",
-                        disabled=not confirm_delete,
-                        key=f"delete_btn_{selected_id}"
-                    ):
-                        delete_opportunity(selected_id)
-                        st.success(f"Opportunity #{selected_id} has been deleted.")
-                        st.rerun()
+                if st.button(
+                    "Permanently Delete",
+                    type="primary",
+                    disabled=not confirm_delete,
+                    key=f"delete_btn_{selected_id}"
+                ):
+                    delete_opportunity(selected_id)
+                    st.success(f"Opportunity #{selected_id} has been deleted.")
+                    st.rerun()
 
 # --- TAB 2: ADD OPPORTUNITY ---
 with tab_add:
