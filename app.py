@@ -56,7 +56,35 @@ def get_deadline_status(deadline_str, today=None):
         return "Due Soon"
     else:
         return "Upcoming"
+def calculate_dashboard_metrics(opportunities, today=None):
+    """
+    Computes key summary metrics from an iterable of opportunity records:
+    - Total Opportunities: total count of all records
+    - Active Applications: count where status is 'Applied', 'In Review', or 'Interviewing'
+    - High Priority: count where priority is 'High'
+    - Due Soon / Today: count where get_deadline_status() is 'Due Today' or 'Due Soon'
+    """
+    total = len(opportunities)
+    active_statuses = {"Applied", "In Review", "Interviewing"}
+    active_count = 0
+    high_priority_count = 0
+    urgent_deadlines_count = 0
 
+    for opp in opportunities:
+        if opp["status"] in active_statuses:
+            active_count += 1
+        if opp["priority"] == "High":
+            high_priority_count += 1
+        deadline_status = get_deadline_status(opp["deadline"], today=today)
+        if deadline_status in ("Due Today", "Due Soon"):
+            urgent_deadlines_count += 1
+
+    return {
+        "total": total,
+        "active": active_count,
+        "high_priority": high_priority_count,
+        "due_soon_or_today": urgent_deadlines_count
+    }
 
 # Page Configuration
 st.set_page_config(
@@ -80,6 +108,20 @@ tab_view, tab_add = st.tabs(["📋 View Opportunities", "➕ Add Opportunity"])
 
 # --- TAB 1: VIEW, EDIT & DELETE OPPORTUNITIES ---
 with tab_view:
+    # Top Metrics Row (Overall Collection Summary)
+    all_opportunities = get_all_opportunities()
+    metrics = calculate_dashboard_metrics(all_opportunities)
+
+    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+    with m_col1:
+        st.metric(label="Total Opportunities", value=metrics["total"])
+    with m_col2:
+        st.metric(label="Active Applications", value=metrics["active"])
+    with m_col3:
+        st.metric(label="High Priority", value=metrics["high_priority"])
+    with m_col4:
+        st.metric(label="Due Soon / Today", value=metrics["due_soon_or_today"])
+
     st.subheader("Saved Opportunities")
 
     # Search and Filter Controls

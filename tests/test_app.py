@@ -47,6 +47,13 @@ def run_tests():
     assert len(at.tabs) == 2, f"Expected 2 tabs, found {len(at.tabs)}"
     print("  [PASS] Navigation tabs rendered ('View Opportunities' & 'Add Opportunity')")
 
+    # Verify metrics row is rendered
+    metric_labels = [m.label for m in at.metric]
+    expected_metrics = ["Total Opportunities", "Active Applications", "High Priority", "Due Soon / Today"]
+    for expected in expected_metrics:
+        assert expected in metric_labels, f"Expected metric '{expected}' not found in {metric_labels}"
+    print(f"  [PASS] Dashboard metric widgets rendered with labels: {metric_labels}")
+
     if len(initial_rows) == 0:
         assert len(at.info) > 0, "Expected empty state info message"
         print(f"  [PASS] Empty state info callout displayed: '{at.info[0].value}'")
@@ -395,6 +402,29 @@ def run_tests():
     assert get_deadline_status((real_today + datetime.timedelta(days=3)).isoformat()) == "Due Soon"
     assert get_deadline_status((real_today + datetime.timedelta(days=10)).isoformat()) == "Upcoming"
     print("  [PASS] Default today parameter behaves consistently with current date")
+
+    # 3.7 Metric Calculation Logic Tests
+    print("\n--- Metric Test 3.7: Dashboard Metrics Calculation ---")
+    from app import calculate_dashboard_metrics
+
+    test_opps = [
+        {"status": "Saved", "priority": "Medium", "deadline": "2026-10-09"},        # Due Soon (ref 2026-10-08)
+        {"status": "Applied", "priority": "High", "deadline": "2026-10-08"},        # Active, High Priority, Due Today
+        {"status": "In Review", "priority": "Low", "deadline": "2026-10-20"},       # Active, Upcoming
+        {"status": "Interviewing", "priority": "High", "deadline": None},           # Active, High Priority, No Deadline
+        {"status": "Accepted", "priority": "High", "deadline": "2026-10-01"},       # High Priority, Expired
+        {"status": "Rejected", "priority": "Low", "deadline": "2026-10-15"},        # Due Soon (7 days)
+    ]
+    computed = calculate_dashboard_metrics(test_opps, today=ref_date)
+    assert computed["total"] == 6, f"Expected total 6, got {computed['total']}"
+    assert computed["active"] == 3, f"Expected active 3 ('Applied', 'In Review', 'Interviewing'), got {computed['active']}"
+    assert computed["high_priority"] == 3, f"Expected high_priority 3, got {computed['high_priority']}"
+    assert computed["due_soon_or_today"] == 3, f"Expected 3 due soon/today (Oct 9, Oct 8, Oct 15), got {computed['due_soon_or_today']}"
+    print("  [PASS] calculate_dashboard_metrics calculates total, active, high_priority, and urgent deadlines accurately")
+
+    empty_computed = calculate_dashboard_metrics([], today=ref_date)
+    assert empty_computed == {"total": 0, "active": 0, "high_priority": 0, "due_soon_or_today": 0}
+    print("  [PASS] calculate_dashboard_metrics handles empty collection correctly")
 
     # -----------------------------------------------------------------
     # SECTION 4: CLEANUP & DATA INTEGRITY TESTS
