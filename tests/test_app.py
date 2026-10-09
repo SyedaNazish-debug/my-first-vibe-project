@@ -10,6 +10,8 @@ Contains:
 import os
 import sys
 import datetime
+import tempfile
+import shutil
 
 # Ensure project root is in sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -25,7 +27,40 @@ def run_tests():
     print("STARTING TEST SUITE: STUDENT OPPORTUNITY BOARD")
     print("================================================================")
 
-    # Record initial database state to guarantee complete restoration
+    old_env_path = os.environ.get("OPPORTUNITY_DB_PATH")
+    temp_dir = None
+
+    try:
+        # Set up an isolated temporary database for the test suite
+        temp_dir = tempfile.mkdtemp(prefix="test_opp_db_")
+        temp_db_path = os.path.join(temp_dir, "test_opportunities.db")
+        os.environ["OPPORTUNITY_DB_PATH"] = temp_db_path
+
+        # Verify active configuration points to isolated database
+        assert database.get_db_path() == temp_db_path, f"Database path mismatch: {database.get_db_path()} != {temp_db_path}"
+        assert not os.path.exists(temp_db_path), f"Temp DB should not exist prior to init: {temp_db_path}"
+
+        # Initialize schema in the isolated temporary database
+        database.init_db()
+        assert os.path.exists(temp_db_path), f"Temp DB was not initialized: {temp_db_path}"
+        print(f"[Test Isolation] Using temporary test database: {temp_db_path}")
+
+        _run_tests_body()
+    finally:
+        # Restore environment variable
+        if old_env_path is not None:
+            os.environ["OPPORTUNITY_DB_PATH"] = old_env_path
+        else:
+            os.environ.pop("OPPORTUNITY_DB_PATH", None)
+
+        # Remove temporary directory and database file only if created
+        if temp_dir is not None and os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            print(f"[Test Isolation] Cleaned up temporary directory: {temp_dir}")
+
+
+def _run_tests_body():
+    # Record initial database state (should be empty in isolated db)
     initial_rows = database.get_all_opportunities()
     initial_ids = {r["id"] for r in initial_rows}
     print(f"[Initial State] Preserving {len(initial_ids)} existing database records: {initial_ids}")

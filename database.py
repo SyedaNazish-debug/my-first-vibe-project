@@ -5,9 +5,15 @@ Handles database connections, table initialization, and CRUD operations
 using Python's built-in sqlite3 module.
 """
 
+import os
 import sqlite3
 
-DB_NAME = "opportunities.db"
+DEFAULT_DB_NAME = "opportunities.db"
+
+
+def get_db_path():
+    """Returns the database file path, honoring OPPORTUNITY_DB_PATH if set."""
+    return os.environ.get("OPPORTUNITY_DB_PATH", DEFAULT_DB_NAME)
 
 
 def get_connection():
@@ -16,7 +22,7 @@ def get_connection():
     Configures sqlite3.Row as the row factory so query results can be
     accessed by column name (like dictionaries) as well as index.
     """
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(get_db_path())
     conn.row_factory = sqlite3.Row
     return conn
 
