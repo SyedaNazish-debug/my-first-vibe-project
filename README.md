@@ -3,7 +3,7 @@
 A web application built as part of my journey into **vibe coding** — using AI-assisted development to turn an idea into a working tool while learning software engineering concepts, database design, and testing practices along the way.
 
 > [!NOTE]
-> **Project Disclaimer:** This is an ongoing learning project developed in stages. It is **not in production yet** and is not intended as a commercial application.
+> **Project Disclaimer:** This is an ongoing learning project developed in stages. It is **not in production yet** and is not intended for commercial use.
 
 ---
 
@@ -147,16 +147,40 @@ python -m tests.test_app
 
 ## What I'm Learning From This Project
 
-This project is helping bridge the gap between learning programming concepts in isolation and assembling a functional software application:
+This project helps bridge the gap between learning programming concepts in isolation and applying them in a functional software application.
 
-1. **Separation of Concerns:** Keeping database SQL operations isolated in [`database.py`](database.py) rather than scattering queries across the UI in [`app.py`](app.py).
-2. **Safe SQL Operations:** Writing parameterized SQL queries (`?` placeholders) to prevent syntax errors and prevent injection risks.
-3. **State & Reactive UI in Streamlit:** Managing form submissions, dropdown bindings, and UI re-runs with `st.rerun()`.
-4. **Defensive UI Design:** Protecting critical destructive actions with confirmation safeguards (disabling delete until an explicit checkbox is marked).
-5. **Boundary Condition Testing:** Understanding how date difference logic handles edges (e.g., exactly today vs 7 days vs 8+ days).
-6. **Automated Testing for Web Apps:** Using Streamlit's `AppTest` to simulate user actions and form interactions programmatically.
-7. **Pairing with AI ("Vibe Coding" responsibly):** Learning that AI is best used as a collaborative partner — reviewing code line-by-line, verifying test outputs, and understanding the architecture rather than treating AI outputs as a black box.
+The following concepts have been explored during development:
 
+1. **Separation of Concerns:** Keeping database operations in [`database.py`](database.py) rather than scattering SQL queries throughout the UI in [`app.py`](app.py).
+2. **Safe SQL Operations:** Using parameterized SQL queries with `?` placeholders to handle user input safely and reduce SQL injection risks.
+3. **State & Reactive UI in Streamlit:** Understanding form submissions, widget state, and UI reruns using `st.rerun()`.
+4. **Defensive UI Design:** Adding confirmation safeguards for destructive actions, such as requiring explicit confirmation before permanently deleting an opportunity.
+5. **Date and Boundary Logic:** Handling deadline calculations correctly, including deadlines due today, within seven days, and beyond that range.
+6. **Automated Testing:** Using Streamlit's `AppTest` framework and Python tests to verify application behavior and database operations.
+7. **AI-Assisted Development:** Using AI as a collaborative development aid while reviewing generated code, understanding implementation decisions, and validating changes rather than treating AI output as a black box.
+
+## What I Learned — Phase 2.5
+
+Phase 2.5 marks an important milestone in my journey with the Student Opportunity Board. What started as a simple student opportunity tracker has evolved into a more structured application with priority filtering, deadline awareness, dashboard metrics, safer data-management workflows, and automated testing.
+
+Beyond implementing features, this phase helped me understand the practical decisions involved in building reliable and maintainable software.
+
+### Key Learnings
+
+1. **Thinking Beyond Expected Scenarios:** Building reliable features requires considering edge cases, invalid inputs, expired deadlines, and potentially destructive user actions.
+2. **Protecting Data Integrity:** Database updates, record IDs, and test cleanup all play a role in ensuring that application data remains consistent and existing records are preserved.
+3. **Verifying Behavior Through Tests:** Automated testing helps check whether application workflows, filters, deadline calculations, and dashboard metrics behave as intended.
+4. **Improving Maintainability:** A clear separation between database operations and UI logic makes an application easier to understand, debug, and extend.
+5. **Using AI Responsibly:** AI-assisted development is most useful when combined with code review, hands-on debugging, understanding implementation decisions, and verification of results.
+
+## Next Steps
+
+ The next stage will focus on improving usability, evaluating the application through realistic usage scenarios, and exploring the requirements for eventual deployment.
+---
+ This project continues to be a practical learning experience, helping me connect programming concepts with real-world software engineering practices.
+
+> [!NOTE]
+The milestone is not just about adding features, but also about developing a better understanding of how to build, test, and improve software responsibly.**
 ---
 
 ## Current Project Status
