@@ -159,11 +159,36 @@ The following concepts have been explored during development:
 6. **Automated Testing:** Using Streamlit's `AppTest` framework and Python tests to verify application behavior and database operations.
 7. **AI-Assisted Development:** Using AI as a collaborative development aid while reviewing generated code, understanding implementation decisions, and validating changes rather than treating AI output as a black box.
 
-## What I Learned — Phase 2.5
+## What I Learned — Phase 2.5  [8 - 9 October, 2026]
 
 Phase 2.5 marks an important milestone in my journey with the Student Opportunity Board. What started as a simple student opportunity tracker has evolved into a more structured application with priority filtering, deadline awareness, dashboard metrics, safer data-management workflows, and automated testing.
 
 Beyond implementing features, this phase helped me understand the practical decisions involved in building reliable and maintainable software.
+
+## Latest Development Update — [October 10, 2026]
+
+### Demo Data Preparation and Repository Synchronization
+
+This phase focused on preparing a controlled demo-data seeding utility and synchronizing the project repository with the latest changes on GitHub.
+
+**Completed**
+- Added `seed_demo_data.py` to prepare a small set of clearly labeled fictional opportunity records for future testing.
+- Reviewed the script's database path validation, transaction handling, duplicate checks, connection closure, and final read-only record-count verification.
+- Reconciled the local branch with the latest remote changes using Git rebase.
+- Successfully pushed the updated `main` branch to GitHub.
+- Committed the utility as `b68b913` (`Add demo data seed script`).
+
+**Safety and Scope**
+- The seed script has **not been executed**.
+- The existing `opportunities.db` and its verified backup have not been modified by this phase.
+- No database seeding or production deployment was performed.
+
+**Pending**
+- Review the current project state before the next development phase.
+- Decide on the next steps for safe demo-data testing and database restoration.
+- Continue evaluating the path toward a student-focused, publicly accessible application.
+
+> **Project status:** Ongoing learning project. The demo-data utility is prepared, but its execution and further database changes require a separate review and explicit approval.
 
 ### Key Learnings
 
