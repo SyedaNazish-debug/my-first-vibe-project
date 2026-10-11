@@ -1,4 +1,8 @@
-# Student Opportunity Board
+# My First Vibe Coding Project
+
+**Project name:** **Student Opportunity Board**
+
+**Project Started:** 2026-09-25
 
 A web application built as part of my journey into **vibe coding** — using AI-assisted development to turn an idea into a working tool while learning software engineering concepts, database design, and testing practices along the way.
 
@@ -199,9 +203,8 @@ This phase focused on preparing a controlled demo-data seeding utility and synch
 5. **Using AI Responsibly:** AI-assisted development is most useful when combined with code review, hands-on debugging, understanding implementation decisions, and verification of results.
 
 ## Next Steps
-
  The next stage will focus on improving usability, evaluating the application through realistic usage scenarios, and exploring the requirements for eventual deployment.
----
+ 
  This project continues to be a practical learning experience, helping me connect programming concepts with real-world software engineering practices.
 
 > [!NOTE]
